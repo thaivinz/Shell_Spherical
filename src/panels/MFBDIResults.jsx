@@ -60,10 +60,9 @@ export default function MFBDIResults({ activeCaseId = 'case1', noiseKey = 'noise
         <span className="material-symbols-outlined text-stage-mfbdi-stroke text-lg mt-0.5">info</span>
         <p>
           <span className="font-semibold text-on-surface">Pipeline output.</span>{' '}
-          Top-10 MFBDI values and suspected element sets are extracted from
-          <span className="font-mono"> Main_multistage.m</span> diary logs. MFBDI is computed via modal
-          flexibility sensitivity analysis (Paper Eq. 12–20). Background element values below
-          threshold are interpolated; ranked elements are exact pipeline output.
+          The MFBDI values of all 100 elements and the suspected element sets are read from the
+          pipeline results (<span className="font-mono">multistage_results.mat</span>). The MFBDI is
+          computed by the modal flexibility sensitivity analysis of Section 2.3 of the paper.
         </p>
       </div>
 
@@ -97,7 +96,7 @@ export default function MFBDIResults({ activeCaseId = 'case1', noiseKey = 'noise
                 strokeDasharray="6 3"
                 label={{ value: `Threshold ${threshold}`, position: 'right', fontSize: 10, fill: '#d32f2f' }}
               />
-              <Bar dataKey="value" radius={[2, 2, 0, 0]}>
+              <Bar isAnimationActive={false} dataKey="value" radius={[2, 2, 0, 0]}>
                 {data.map((entry, i) => (
                   <Cell key={i} fill={barColor(entry)} />
                 ))}

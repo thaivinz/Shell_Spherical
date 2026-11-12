@@ -31,63 +31,18 @@ export default function DNNRefinement({ activeCaseId = 'case1', noiseKey = 'nois
     if (!result || !currentCase) return [];
     const damagedSet = new Set(currentCase.dam_e);
 
-    // Last stage (or only stage): show finalPredictions
-    if (isLastStage) {
-      return (result.finalPredictions ?? []).map((fp) => ({
-        element: fp.element,
-        predicted: fp.predicted,
-        groundTruth: fp.groundTruth,
-        sigma: fp.sigma ?? 0,
-        isDamaged: damagedSet.has(fp.element),
-        keep: true,
-      }));
-    }
-
-    // Earlier stages: show kept/removed from stageDetails
-    const details = result.stageDetails?.[effectiveStage];
-    if (!details) {
-      // BUG FIX #8: If stageDetails missing, synthesize from convergence elemIn/Out
-      // Show the elements that survived this stage from the MFBDI suspected set
-      const suspected = result.mfbdi?.suspected ?? [];
-      const nOut = conv?.elemOut ?? 0;
-      const gtSet = new Set(currentCase.dam_e);
-      const gtMap = Object.fromEntries(
-        (result.finalPredictions ?? []).map((fp) => [fp.element, fp.groundTruth])
-      );
-      // Place ground-truth elements first, then fill with false positives
-      const gtInSuspected = suspected.filter((e) => gtSet.has(e));
-      const nonGt = suspected.filter((e) => !gtSet.has(e));
-      const kept = [...gtInSuspected, ...nonGt.slice(0, Math.max(0, nOut - gtInSuspected.length))];
-      const keptSet = new Set(kept);
-      return suspected.slice(0, conv?.elemIn ?? suspected.length).map((el) => ({
-        element: el,
-        predicted: keptSet.has(el) ? (gtMap[el] ?? 0.08) : 0.02 + Math.random() * 0.02,
-        groundTruth: gtMap[el] ?? 0,
-        sigma: 0,
-        isDamaged: damagedSet.has(el),
-        keep: keptSet.has(el),
-      }));
-    }
-
-    const keptSet = new Set(details.kept);
-    const allElems = [...details.kept, ...details.removed].sort((a, b) => a - b);
-    const gtMap = Object.fromEntries(
-      (result.finalPredictions ?? []).map((fp) => [fp.element, fp.groundTruth])
-    );
-
-    // Seed-based deterministic random for removed element predictions
-    let seed = effectiveStage * 1000 + allElems.length;
-    const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-
-    return allElems.map((el) => ({
-      element: el,
-      predicted: keptSet.has(el) ? (gtMap[el] ?? 0.06 + rand() * 0.02) : rand() * 0.04,
-      groundTruth: gtMap[el] ?? 0,
-      sigma: 0,
-      isDamaged: damagedSet.has(el),
-      keep: keptSet.has(el),
+    // Mean (and, under noise, standard deviation) of the DNN predictions for every
+    // candidate element of this stage, as stored by the pipeline (no synthetic values)
+    const preds = result.stagePredictions?.[effectiveStage] ?? [];
+    return preds.map((p) => ({
+      element: p.element,
+      predicted: p.predicted,
+      groundTruth: p.groundTruth,
+      sigma: p.sigma ?? 0,
+      isDamaged: damagedSet.has(p.element),
+      keep: p.keep,
     }));
-  }, [result, effectiveStage, isLastStage, currentCase, activeCaseId, noiseKey, conv]);
+  }, [result, effectiveStage, currentCase]);
 
   if (!result || convergence.length === 0) {
     return (
@@ -104,7 +59,7 @@ export default function DNNRefinement({ activeCaseId = 'case1', noiseKey = 'nois
   }
 
   // BUG FIX #3: check sigma from actual data, not just noiseKey
-  const hasSigma = isLastStage && chartData.some((d) => d.sigma > 0);
+  const hasSigma = chartData.some((d) => d.sigma > 0);
 
   return (
     <section className="space-y-6">
@@ -144,8 +99,8 @@ export default function DNNRefinement({ activeCaseId = 'case1', noiseKey = 'nois
             {isLastStage ? 'Pipeline output — final predictions.' : 'Pipeline output — stage elimination.'}
           </span>{' '}
           {isLastStage
-            ? 'Predicted damage ratios and convergence metrics are extracted from diary logs of Main_multistage.m. '
-            : 'Kept/removed element sets are exact pipeline output from diary logs (δ = 0.05). '}
+            ? 'Predicted damage ratios (mean ± standard deviation over the noisy realizations) and convergence metrics are read from the pipeline results. '
+            : 'Predicted damage ratios (mean ± standard deviation) and kept/removed element sets are read from the pipeline results (δ = 0.05). '}
           DNN trained via <span className="font-mono">train_dnn_stage.py</span> (TensorFlow/Keras, Adam lr=0.001, batch=64).
         </p>
       </div>
@@ -188,7 +143,7 @@ export default function DNNRefinement({ activeCaseId = 'case1', noiseKey = 'nois
                   strokeDasharray="6 3"
                   label={{ value: `δ=${THRESHOLD}`, position: 'right', fontSize: 10, fill: '#d32f2f' }}
                 />
-                <Bar dataKey="predicted" radius={[2, 2, 0, 0]}>
+                <Bar isAnimationActive={false} dataKey="predicted" radius={[2, 2, 0, 0]}>
                   {chartData.map((entry, i) => (
                     <Cell key={i} fill={entry.keep ? '#2e7d32' : '#d32f2f'} />
                   ))}

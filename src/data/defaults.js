@@ -8,7 +8,7 @@ export const SHELL_TYPES = {
   spherical: {
     label: 'Spherical Shell',
     baitoan: 2,
-    material: { E: 68.9e9, nuy: 0.3, kapa: 5 / 6, rho: 2700, t: 0.99451 },
+    material: { E: 68.9e9, nuy: 0.3, kapa: 5 / 6, rho: 2700, t: 0.099451 },
     geometry: { lx: 1.5698, ly: 1.5698, R: 2.54 },
   },
 };
@@ -52,7 +52,7 @@ export const DEFAULT_CFG = {
   dnn_epochs_base_noise: 2000,
   dnn_sample_incr: 500,
   dnn_epoch_incr: 500,
-  dnn_max_samples: 8000,
+  dnn_max_samples: 5000,
   dnn_max_epochs: 5000,
   dnn_d_hidden_init: 1024,
   dnn_d_hidden_min: 128,

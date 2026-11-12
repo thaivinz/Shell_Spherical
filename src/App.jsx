@@ -24,9 +24,11 @@ const PANELS = {
 };
 
 export default function App() {
-  const [activePanel, setActivePanel] = useState('model-setup');
-  const [activeCaseId, setActiveCaseId] = useState('case1');
-  const [noiseKey, setNoiseKey] = useState('noise_free');
+  // Optional URL parameters, e.g. ?panel=stage-1-mfbdi&case=case2&noise=noise_10
+  const params = new URLSearchParams(window.location.search);
+  const [activePanel, setActivePanel] = useState(params.get('panel') || 'model-setup');
+  const [activeCaseId, setActiveCaseId] = useState(params.get('case') || 'case1');
+  const [noiseKey, setNoiseKey] = useState(params.get('noise') || 'noise_free');
 
   const ActivePanel = PANELS[activePanel] || ModelSetup;
 

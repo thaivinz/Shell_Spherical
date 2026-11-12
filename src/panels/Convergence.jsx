@@ -142,7 +142,7 @@ export default function Convergence({ activeCaseId = 'case1', noiseKey = 'noise_
               <YAxis tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              <Line
+              <Line isAnimationActive={false}
                 type="monotone"
                 dataKey="elemIn"
                 stroke="#00695c"
@@ -150,7 +150,7 @@ export default function Convergence({ activeCaseId = 'case1', noiseKey = 'noise_
                 dot={{ r: 4 }}
                 name="Elements In"
               />
-              <Line
+              <Line isAnimationActive={false}
                 type="monotone"
                 dataKey="elemOut"
                 stroke="#26a69a"
@@ -174,7 +174,7 @@ export default function Convergence({ activeCaseId = 'case1', noiseKey = 'noise_
               <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => v.toFixed(4)} />
               <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={(v) => v.toFixed(6)} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              <Line
+              <Line isAnimationActive={false}
                 type="monotone"
                 dataKey="trainMSE"
                 stroke="#e65100"
@@ -182,7 +182,7 @@ export default function Convergence({ activeCaseId = 'case1', noiseKey = 'noise_
                 dot={{ r: 4 }}
                 name="Train MSE"
               />
-              <Line
+              <Line isAnimationActive={false}
                 type="monotone"
                 dataKey="testMSE"
                 stroke="#ff9800"
@@ -206,7 +206,7 @@ export default function Convergence({ activeCaseId = 'case1', noiseKey = 'noise_
               <YAxis tick={{ fontSize: 10 }} domain={[r2Min, 1.0]} tickFormatter={(v) => v.toFixed(3)} />
               <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={(v) => v.toFixed(6)} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              <Line
+              <Line isAnimationActive={false}
                 type="monotone"
                 dataKey="trainR2"
                 stroke="#1565c0"
@@ -214,7 +214,7 @@ export default function Convergence({ activeCaseId = 'case1', noiseKey = 'noise_
                 dot={{ r: 4 }}
                 name="Train R²"
               />
-              <Line
+              <Line isAnimationActive={false}
                 type="monotone"
                 dataKey="testR2"
                 stroke="#42a5f5"
